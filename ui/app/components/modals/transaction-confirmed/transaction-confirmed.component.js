@@ -9,13 +9,10 @@ export default class TransactionConfirmed extends PureComponent {
 
   static propTypes = {
     onSubmit: PropTypes.func,
-    hideModal: PropTypes.func,
   }
 
   handleSubmit = () => {
-    const { hideModal, onSubmit } = this.props
-
-    hideModal()
+    const { onSubmit } = this.props
 
     if (onSubmit && typeof onSubmit === 'function') {
       onSubmit()

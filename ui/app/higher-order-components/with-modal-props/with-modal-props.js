@@ -10,12 +10,6 @@ const mapStateToProps = state => {
   }
 }
 
-const mapDispatchToProps = dispatch => {
-  return {
-    hideModal: () => dispatch(hideModal()),
-  }
-}
-
 export default function withModalProps (Component) {
-  return connect(mapStateToProps, mapDispatchToProps)(Component)
+  return connect(mapStateToProps)(Component)
 }

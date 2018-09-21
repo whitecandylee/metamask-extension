@@ -4,11 +4,9 @@ import Modal, { ModalContent } from '../../modal'
 
 const TransactionConfirmed = (props, context) => {
   const { t } = context
-  const { hideModal } = props
 
   return (
     <Modal
-      onSubmit={() => hideModal()}
       submitText={t('ok')}
     >
       <ModalContent

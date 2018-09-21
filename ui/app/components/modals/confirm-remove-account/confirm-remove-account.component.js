@@ -18,8 +18,7 @@ class ConfirmRemoveAccount extends Component {
   }
 
   handleRemove () {
-    this.props.removeAccount(this.props.identity.address)
-      .then(() => this.props.hideModal())
+    return this.props.removeAccount(this.props.identity.address)
   }
 
   renderSelectedAccount () {

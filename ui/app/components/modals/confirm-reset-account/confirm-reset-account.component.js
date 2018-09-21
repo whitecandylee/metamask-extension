@@ -4,7 +4,6 @@ import Modal, { ModalContent } from '../../modal'
 
 export default class ConfirmResetAccount extends PureComponent {
   static propTypes = {
-    hideModal: PropTypes.func.isRequired,
     resetAccount: PropTypes.func.isRequired,
   }
 
@@ -23,7 +22,6 @@ export default class ConfirmResetAccount extends PureComponent {
     return (
       <Modal
         onSubmit={this.handleReset}
-        onCancel={() => this.props.hideModal()}
         submitText={t('reset')}
         cancelText={t('nevermind')}
         submitType="secondary"
