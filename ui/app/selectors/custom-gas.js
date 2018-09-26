@@ -25,6 +25,7 @@ const selectors = {
   getCustomGasLimit,
   getCustomGasPrice,
   getCustomGasTotal,
+  getRenderableEstimateDataForSmallButtons,
   getRenderableBasicEstimateData,
   getBasicGasEstimateLoadingStatus,
   getAveragePriceEstimateInHexWEI,
@@ -33,6 +34,8 @@ const selectors = {
 }
 
 module.exports = selectors
+
+const NUMBER_OF_DECIMALS_SM_BTNS = 5
 
 function getCustomGasErrors (state) {
   return state.gas.errors
@@ -74,22 +77,23 @@ function apiEstimateModifiedToGWEI (estimate) {
   })
 }
 
-function basicPriceEstimateToETHTotal (estimate, gasLimit) {
+function basicPriceEstimateToETHTotal (estimate, gasLimit, numberOfDecimals = 9) {
   return conversionUtil(calcGasTotal(gasLimit, estimate), {
     fromNumericBase: 'hex',
     toNumericBase: 'dec',
     fromDenomination: 'GWEI',
-    numberOfDecimals: 9,
+    numberOfDecimals,
   })
 }
 
-function getRenderableEthFee (estimate, gasLimit) {
+function getRenderableEthFee (estimate, gasLimit, numberOfDecimals = 9) {
   return pipe(
     apiEstimateModifiedToGWEI,
-    partialRight(basicPriceEstimateToETHTotal, [gasLimit]),
+    partialRight(basicPriceEstimateToETHTotal, [gasLimit, numberOfDecimals]),
     formatETHFee
   )(estimate, gasLimit)
 }
+
 
 function getRenderableConvertedCurrencyFee (estimate, gasLimit, convertedCurrency, conversionRate) {
   return pipe(
@@ -184,6 +188,45 @@ function getRenderableBasicEstimateData (state) {
       feeInPrimaryCurrency: getRenderableConvertedCurrencyFee(safeLow, gasLimit, currentCurrency, conversionRate),
       feeInSecondaryCurrency: getRenderableEthFee(safeLow, gasLimit),
       timeEstimate: getRenderableTimeEstimate(safeLowWait, blockTime),
+      priceInHexWei: getGasPriceInHexWei(safeLow),
+    },
+  ]
+}
+
+function getRenderableEstimateDataForSmallButtons (state) {
+  if (getBasicGasEstimateLoadingStatus(state)) {
+    return []
+  }
+  const gasLimit = state.metamask.send.gasLimit || getCustomGasLimit(state)
+  const conversionRate = state.metamask.conversionRate
+  const currentCurrency = getCurrentCurrency(state)
+  const {
+    gas: {
+      basicEstimates: {
+        safeLow,
+        average,
+        fast,
+      },
+    },
+  } = state
+
+  return [
+    {
+      labelKey: 'fast',
+      feeInSecondaryCurrency: getRenderableConvertedCurrencyFee(fast, gasLimit, currentCurrency, conversionRate),
+      feeInPrimaryCurrency: getRenderableEthFee(fast, gasLimit, NUMBER_OF_DECIMALS_SM_BTNS),
+      priceInHexWei: getGasPriceInHexWei(fast),
+    },
+    {
+      labelKey: 'average',
+      feeInSecondaryCurrency: getRenderableConvertedCurrencyFee(average, gasLimit, currentCurrency, conversionRate),
+      feeInPrimaryCurrency: getRenderableEthFee(average, gasLimit, NUMBER_OF_DECIMALS_SM_BTNS),
+      priceInHexWei: getGasPriceInHexWei(average),
+    },
+    {
+      labelKey: 'slow',
+      feeInSecondaryCurrency: getRenderableConvertedCurrencyFee(safeLow, gasLimit, currentCurrency, conversionRate),
+      feeInPrimaryCurrency: getRenderableEthFee(safeLow, gasLimit, NUMBER_OF_DECIMALS_SM_BTNS),
       priceInHexWei: getGasPriceInHexWei(safeLow),
     },
   ]
