@@ -34,7 +34,11 @@ const selectors = {
   getCurrentViewContext,
   getTotalUnapprovedCount,
   preferencesSelector,
+<<<<<<< HEAD
   getMetaMaskAccounts,
+=======
+  getCurrentEthBalance,
+>>>>>>> Adds speed up slide-in gas customization sidebar
 }
 
 module.exports = selectors
@@ -135,6 +139,10 @@ function getCurrentAccountWithSendEtherInfo (state) {
   const accounts = accountsWithSendEtherInfoSelector(state)
 
   return accounts.find(({ address }) => address === currentAddress)
+}
+
+function getCurrentEthBalance (state) {
+  return getCurrentAccountWithSendEtherInfo(state).balance
 }
 
 function getGasIsLoading (state) {
