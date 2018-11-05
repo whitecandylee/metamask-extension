@@ -5,7 +5,7 @@
   src: local('Roboto'), local('Roboto-Regular'), url('/fonts/Roboto/Roboto-Regular.ttf') format('truetype');
   unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
 }
-
+/*
 .first-time-flow {
   width: 100vw;
   background-color: #fff;
@@ -21,7 +21,7 @@
   .first-time-flow {
     height: 100vh;
   }
-}
+} */
 
 .alpha-warning__container {
   display: flex;

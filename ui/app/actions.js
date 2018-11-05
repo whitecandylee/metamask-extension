@@ -85,6 +85,8 @@ var actions = {
   createNewVaultAndKeychain: createNewVaultAndKeychain,
   createNewVaultAndRestore: createNewVaultAndRestore,
   createNewVaultInProgress: createNewVaultInProgress,
+  createNewVaultAndGetSeedPhrase,
+  unlockAndGetSeedPhrase,
   addNewKeyring,
   importNewAccount,
   addNewAccount,
@@ -311,6 +313,11 @@ var actions = {
   UPDATE_PREFERENCES: 'UPDATE_PREFERENCES',
   setUseNativeCurrencyAsPrimaryCurrencyPreference,
 
+  // Onboarding
+  setCompletedOnboarding,
+  completeOnboarding,
+  COMPLETE_ONBOARDING: 'COMPLETE_ONBOARDING',
+
   setMouseUserState,
   SET_MOUSE_USER_STATE: 'SET_MOUSE_USER_STATE',
 
@@ -433,6 +440,7 @@ function createNewVaultAndRestore (password, seed) {
 
         background.createNewVaultAndRestore(password, seed, (err) => {
           if (err) {
+            console.log('ACTIONS ERR', err)
             return reject(err)
           }
 
@@ -442,12 +450,15 @@ function createNewVaultAndRestore (password, seed) {
     })
       .then(() => dispatch(actions.unMarkPasswordForgotten()))
       .then(() => {
+        console.log('SUCCESS')
         dispatch(actions.showAccountsPage())
         dispatch(actions.hideLoadingIndication())
       })
       .catch(err => {
+        console.log('ACTIONS ERR2', err)
         dispatch(actions.displayWarning(err.message))
         dispatch(actions.hideLoadingIndication())
+        return Promise.reject(err)
       })
   }
 }
@@ -482,10 +493,69 @@ function createNewVaultAndKeychain (password) {
   }
 }
 
+function createNewVaultAndGetSeedPhrase (password) {
+  return async dispatch => {
+    dispatch(actions.showLoadingIndication())
+
+    try {
+      await createNewVault(password)
+      const seedWords = await verifySeedPhrase()
+      dispatch(actions.hideLoadingIndication())
+      return seedWords
+    } catch (error) {
+      dispatch(actions.hideLoadingIndication())
+      dispatch(actions.displayWarning(error.message))
+      throw new Error(error.message)
+    }
+  }
+}
+
+function unlockAndGetSeedPhrase (password) {
+  return async dispatch => {
+    dispatch(actions.showLoadingIndication())
+
+    try {
+      await submitPassword(password)
+      const seedWords = await verifySeedPhrase()
+      await forceUpdateMetamaskState(dispatch)
+      dispatch(actions.hideLoadingIndication())
+      return seedWords
+    } catch (error) {
+      dispatch(actions.hideLoadingIndication())
+      dispatch(actions.displayWarning(error.message))
+      throw new Error(error.message)
+    }
+  }
+}
+
 function revealSeedConfirmation () {
   return {
     type: this.REVEAL_SEED_CONFIRMATION,
   }
+}
+
+function submitPassword (password) {
+  return new Promise((resolve, reject) => {
+    background.submitPassword(password, error => {
+      if (error) {
+        return reject(error)
+      }
+
+      resolve()
+    })
+  })
+}
+
+function createNewVault (password) {
+  return new Promise((resolve, reject) => {
+    background.createNewVaultAndKeychain(password, error => {
+      if (error) {
+        return reject(error)
+      }
+
+      resolve(true)
+    })
+  })
 }
 
 function verifyPassword (password) {
@@ -2335,6 +2405,31 @@ function updatePreferences (value) {
 
 function setUseNativeCurrencyAsPrimaryCurrencyPreference (value) {
   return setPreference('useNativeCurrencyAsPrimaryCurrency', value)
+}
+
+function setCompletedOnboarding () {
+  return dispatch => {
+    dispatch(actions.showLoadingIndication())
+    return new Promise((resolve, reject) => {
+      background.completeOnboarding(err => {
+        dispatch(actions.hideLoadingIndication())
+
+        if (err) {
+          dispatch(actions.displayWarning(err.message))
+          return reject(err)
+        }
+
+        dispatch(actions.completeOnboarding())
+        resolve()
+      })
+    })
+  }
+}
+
+function completeOnboarding () {
+  return {
+    type: actions.COMPLETE_ONBOARDING,
+  }
 }
 
 function setNetworkNonce (networkNonce) {

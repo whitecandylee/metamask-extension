@@ -7,7 +7,8 @@ const CLASSNAME_PRIMARY = 'btn-primary'
 const CLASSNAME_SECONDARY = 'btn-secondary'
 const CLASSNAME_CONFIRM = 'btn-confirm'
 const CLASSNAME_RAISED = 'btn-raised'
-const CLASSNAME_LARGE = 'btn--large'
+const CLASSNAME_LARGE = 'btn-large'
+const CLASSNAME_FIRST_TIME = 'btn-first-time'
 
 const typeHash = {
   default: CLASSNAME_DEFAULT,
@@ -15,6 +16,7 @@ const typeHash = {
   secondary: CLASSNAME_SECONDARY,
   confirm: CLASSNAME_CONFIRM,
   raised: CLASSNAME_RAISED,
+  'first-time': CLASSNAME_FIRST_TIME,
 }
 
 export default class Button extends Component {

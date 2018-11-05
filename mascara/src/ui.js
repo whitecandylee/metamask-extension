@@ -1,15 +1,15 @@
-const injectCss = require('inject-css')
+// const injectCss = require('inject-css')
 const SwController = require('sw-controller')
 const SwStream = require('sw-stream')
-const MetaMaskUiCss = require('../../ui/css')
+// const MetaMaskUiCss = require('../../ui/css')
 const MetamascaraPlatform = require('../../app/scripts/platforms/window')
 const startPopup = require('../../app/scripts/popup-core')
 
 // create platform global
 global.platform = new MetamascaraPlatform()
 
-var css = MetaMaskUiCss()
-injectCss(css)
+// var css = MetaMaskUiCss()
+// injectCss(css)
 const container = document.getElementById('app-content')
 
 const name = 'popup'
