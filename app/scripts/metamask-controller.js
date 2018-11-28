@@ -26,7 +26,6 @@ const PreferencesController = require('./controllers/preferences')
 const CurrencyController = require('./controllers/currency')
 const NoticeController = require('./notice-controller')
 const ShapeShiftController = require('./controllers/shapeshift')
-const AddressBookController = require('./controllers/address-book')
 const InfuraController = require('./controllers/infura')
 const BlacklistController = require('./controllers/blacklist')
 const RecentBlocksController = require('./controllers/recent-blocks')
@@ -54,6 +53,7 @@ const HW_WALLETS_KEYRINGS = [TrezorKeyring.type, LedgerBridgeKeyring.type]
 const EthQuery = require('eth-query')
 const ethUtil = require('ethereumjs-util')
 const sigUtil = require('eth-sig-util')
+const { AddressBookController } = require('gaba')
 
 module.exports = class MetamaskController extends EventEmitter {
 
@@ -165,11 +165,7 @@ module.exports = class MetamaskController extends EventEmitter {
       keyringMemStore: this.keyringController.memStore,
     })
 
-    // address book controller
-    this.addressBookController = new AddressBookController({
-      initState: initState.AddressBookController,
-      preferencesStore: this.preferencesController.store,
-    })
+    this.addressBookController = new AddressBookController(undefined, initState.AddressBookController)
 
     // tx mgmt
     this.txController = new TransactionController({
@@ -235,7 +231,7 @@ module.exports = class MetamaskController extends EventEmitter {
       TransactionController: this.txController.store,
       KeyringController: this.keyringController.store,
       PreferencesController: this.preferencesController.store,
-      AddressBookController: this.addressBookController.store,
+      AddressBookController: this.addressBookController,
       CurrencyController: this.currencyController.store,
       NoticeController: this.noticeController.store,
       ShapeShiftController: this.shapeshiftController.store,
@@ -255,7 +251,7 @@ module.exports = class MetamaskController extends EventEmitter {
       KeyringController: this.keyringController.memStore,
       PreferencesController: this.preferencesController.store,
       RecentBlocksController: this.recentBlocksController.store,
-      AddressBookController: this.addressBookController.store,
+      AddressBookController: this.addressBookController,
       CurrencyController: this.currencyController.store,
       NoticeController: this.noticeController.memStore,
       ShapeshiftController: this.shapeshiftController.store,
@@ -364,7 +360,6 @@ module.exports = class MetamaskController extends EventEmitter {
     const preferencesController = this.preferencesController
     const txController = this.txController
     const noticeController = this.noticeController
-    const addressBookController = this.addressBookController
     const networkController = this.networkController
     const providerApprovalController = this.providerApprovalController
 
@@ -421,7 +416,7 @@ module.exports = class MetamaskController extends EventEmitter {
       whitelistPhishingDomain: this.whitelistPhishingDomain.bind(this),
 
       // AddressController
-      setAddressBook: nodeify(addressBookController.setAddressBook, addressBookController),
+      setAddressBook: this.addressBookController.set.bind(this.addressBookController),
 
       // KeyringController
       setLocked: nodeify(this.setLocked, this),
