@@ -40,6 +40,7 @@ import {
   getEstimatedGasTimes,
   getRenderableBasicEstimateData,
   getBasicGasEstimateBlockTime,
+  isCustomPriceSafe,
 } from '../../../selectors/custom-gas'
 import {
   submittedPendingTransactionsSelector,
@@ -107,6 +108,7 @@ const mapStateToProps = (state, ownProps) => {
     newTotalFiat,
     currentTimeEstimate: getRenderableTimeEstimate(customGasPrice, gasPrices, estimatedTimes),
     blockTime: getBasicGasEstimateBlockTime(state),
+    customPriceIsSafe: isCustomPriceSafe(state),
     gasPriceButtonGroupProps: {
       buttonDataLoading,
       defaultActiveButtonIndex: getDefaultActiveButtonIndex(gasButtonInfo, customModalGasPriceInHex),
@@ -167,7 +169,7 @@ const mapDispatchToProps = dispatch => {
 }
 
 const mergeProps = (stateProps, dispatchProps, ownProps) => {
-  const { gasPriceButtonGroupProps, isConfirm, isSpeedUp, txId } = stateProps
+  const { gasPriceButtonGroupProps, isConfirm, txId } = stateProps
   const {
     updateCustomGasPrice: dispatchUpdateCustomGasPrice,
     hideGasButtonGroup: dispatchHideGasButtonGroup,
@@ -188,7 +190,7 @@ const mergeProps = (stateProps, dispatchProps, ownProps) => {
       if (isConfirm) {
         dispatchUpdateConfirmTxGasAndCalculate(gasLimit, gasPrice)
         dispatchHideModal()
-      } else if (isSpeedUp) {
+      } else if (stateProps.isSpeedUp) {
         dispatchCreateSpeedUpTransaction(txId, gasPrice)
         dispatchHideSidebar()
         dispatchCancelAndClose()
@@ -204,10 +206,11 @@ const mergeProps = (stateProps, dispatchProps, ownProps) => {
     },
     cancelAndClose: () => {
       dispatchCancelAndClose()
-      if (isSpeedUp) {
+      if (stateProps.isSpeedUp) {
         dispatchHideSidebar()
       }
     },
+    disableSave: stateProps.insufficientBalance || (stateProps.isSpeedUp && stateProps.customGasPrice === 0),
   }
 }
 
