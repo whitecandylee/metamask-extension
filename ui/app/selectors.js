@@ -35,6 +35,7 @@ const selectors = {
   getTotalUnapprovedCount,
   preferencesSelector,
   getMetaMaskAccounts,
+  isBalanceCached,
 }
 
 module.exports = selectors
@@ -69,6 +70,20 @@ function getMetaMaskAccounts (state) {
     }
   })
   return selectedAccounts
+}
+
+function isBalanceCached (state) {
+  const selectedAccountBalance = getSelectedAccount(state)
+  const cachedBalance = getSelectedAccountCachedBalance(state)
+
+  return Boolean(!selectedAccountBalance && cachedBalance)
+}
+
+function getSelectedAccountCachedBalance (state) {
+  const cachedBalances = state.metamask.cachedAccountBalances
+  const selectedAddress = getSelectedAddress(state)
+
+  return cachedBalances[selectedAddress]
 }
 
 function getSelectedAccount (state) {

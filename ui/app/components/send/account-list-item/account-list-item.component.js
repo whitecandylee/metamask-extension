@@ -4,6 +4,7 @@ import { checksumAddress } from '../../../util'
 import Identicon from '../../identicon'
 import UserPreferencedCurrencyDisplay from '../../user-preferenced-currency-display'
 import { PRIMARY, SECONDARY } from '../../../constants/common'
+import Tooltip from '../../tooltip-v2'
 
 export default class AccountListItem extends Component {
 
@@ -16,6 +17,7 @@ export default class AccountListItem extends Component {
     displayBalance: PropTypes.bool,
     handleClick: PropTypes.func,
     icon: PropTypes.node,
+    balanceIsCached: PropTypes.bool,
   };
 
   static contextTypes = {
@@ -30,6 +32,7 @@ export default class AccountListItem extends Component {
       displayBalance = true,
       handleClick,
       icon = null,
+      balanceIsCached,
     } = this.props
 
     const { name, address, balance } = account || {}
@@ -59,6 +62,12 @@ export default class AccountListItem extends Component {
       {
         displayBalance && (
           <div className="account-list-item__account-balances">
+            { balanceIsCached
+              ? <Tooltip position="top" title={this.context.t('balanceOutdated')}>
+                <div className="account-list-item__balance-flag">*</div>
+              </Tooltip>
+              : null
+            }
             <UserPreferencedCurrencyDisplay
               type={PRIMARY}
               value={balance}
